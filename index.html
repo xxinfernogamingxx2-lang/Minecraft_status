@@ -2,69 +2,273 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Remaintune Server Status</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remaintune • Server Status</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; padding-top: 50px; }
-        .card { background: #1e1e1e; display: inline-block; padding: 25px 40px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .status-dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; }
-        .online { background-color: #2ea44f; }
-        .offline { background-color: #cb2431; }
-        .server-ip { color: #58a6ff; font-weight: bold; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.15) 0px, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #f8fafc;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 32px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .server-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #38bdf8, #6366f1);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px auto;
+            box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.3);
+        }
+
+        .server-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: #fff;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .status-badge.online {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-badge.offline {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .online .pulse-dot { background-color: #22c55e; }
+        .offline .pulse-dot { background-color: #ef4444; }
+
+        .online .pulse-dot::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            background-color: #22c55e;
+            animation: pulse 1.8s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        /* Stats Container */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #f1f5f9;
+        }
+
+        /* Copy Button */
+        .copy-btn {
+            width: 100%;
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .copy-btn:hover {
+            background: #7dd3fc;
+            transform: translateY(-1px);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .footer-text {
+            margin-top: 16px;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>Minefort Status</h2>
-        <p class="server-ip">remaintune.minefort.com:19132</p>
-        <p>
-            <span id="dot" class="status-dot offline"></span>
-            <span id="status">Checking server status...</span>
-        </p>
-        <p id="players">Players: --/--</p>
+        <!-- Pickaxe Icon -->
+        <div class="server-icon">
+            <svg viewBox="0 0 24 24">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.9 6.91a2.12 2.12 0 0 1-3-3l6.91-6.9a6 6 0 0 1 7.94-7.94l-3.78 3.76z"/>
+            </svg>
+        </div>
+
+        <h1>Remaintune</h1>
+
+        <div id="status-badge" class="status-badge offline">
+            <span class="pulse-dot"></span>
+            <span id="status-text">Checking...</span>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="stat-label">Players Online</span>
+                <span id="players-val" class="stat-value">--/--</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Port</span>
+                <span class="stat-value">19132 (Bedrock)</span>
+            </div>
+        </div>
+
+        <button class="copy-btn" onclick="copyServerIP()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span id="copy-btn-text">Copy Server Address</span>
+        </button>
+
+        <p class="footer-text">Auto-refreshes every 60 seconds</p>
     </div>
 
     <script>
-        // Server details
         const SERVER_HOST = "remaintune.minefort.com";
         const SERVER_PORT = "19132";
 
-        async function checkMinefortStatus() {
+        async function updateStatus() {
             try {
-                // Notice /bedrock/ in the endpoint for Bedrock/Geyser servers
-                const response = await fetch(`https://api.mcsrvstat.us/bedrock/3/${SERVER_HOST}:${SERVER_PORT}`);
-                const data = await response.json();
+                const res = await fetch(`https://api.mcsrvstat.us/bedrock/3/${SERVER_HOST}:${SERVER_PORT}`);
+                const data = await res.json();
 
-                const statusText = document.getElementById("status");
-                const dot = document.getElementById("dot");
-                const playersText = document.getElementById("players");
+                const badge = document.getElementById('status-badge');
+                const statusText = document.getElementById('status-text');
+                const playersVal = document.getElementById('players-val');
 
                 if (data.online) {
-                    dot.className = "status-dot online";
-                    statusText.innerText = "ONLINE";
+                    badge.className = "status-badge online";
+                    statusText.innerText = "Online";
                     
-                    // Show player counts if available
                     if (data.players) {
-                        playersText.innerText = `Players: ${data.players.online}/${data.players.max}`;
+                        playersVal.innerText = `${data.players.online} / ${data.players.max}`;
                     } else {
-                        playersText.innerText = "Server is online!";
+                        playersVal.innerText = "Online";
                     }
                 } else {
-                    dot.className = "status-dot offline";
-                    statusText.innerText = "OFFLINE (or starting up)";
-                    playersText.innerText = "Players: 0";
+                    badge.className = "status-badge offline";
+                    statusText.innerText = "Offline";
+                    playersVal.innerText = "0";
                 }
-            } catch (error) {
-                console.error("Error fetching server status:", error);
-                document.getElementById("status").innerText = "Error loading status";
+            } catch (err) {
+                console.error("Fetch failed:", err);
+                document.getElementById('status-text').innerText = "Error";
             }
         }
 
-        // Run check on page load
-        checkMinefortStatus();
+        function copyServerIP() {
+            const fullAddress = `${SERVER_HOST}`;
+            navigator.clipboard.writeText(fullAddress);
+            
+            const btnText = document.getElementById('copy-btn-text');
+            btnText.innerText = "Copied to Clipboard!";
+            
+            setTimeout(() => {
+                btnText.innerText = "Copy Server Address";
+            }, 2000);
+        }
 
-        // Auto-refresh every 60 seconds
-        setInterval(checkMinefortStatus, 60000);
+        // Run on startup
+        updateStatus();
+        
+        // Refresh every minute
+        setInterval(updateStatus, 60000);
     </script>
 </body>
 </html>
